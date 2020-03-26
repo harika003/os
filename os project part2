@@ -56,4 +56,4 @@ class Salon extends MyObject {
    }
 }
 
-class SleepingBarber extends MyOb
+
