@@ -1,0 +1,59 @@
+}               
+
+class Salon extends MyObject {
+
+   private int numChairs = 0;
+   private CountingSemaphore customers = null;
+   private CountingSemaphore barber = null;
+   private BinarySemaphore mutex = null;
+   private CountingSemaphore cutting = null;
+   private int waiting = 0;
+
+   public Salon(String name, int numChairs) {
+      super(name);
+      this.numChairs = numChairs;
+      customers = new CountingSemaphore(0);
+      barber = new CountingSemaphore(0);
+      mutex = new BinarySemaphore(1);
+      cutting = new CountingSemaphore(0);
+   }      
+   public void wantToCut() {
+      System.out.println("age=" + age()
+         + ", Barber free, waiting for a customer");
+      P(customers);
+      P(mutex);
+      waiting--;
+      V(barber);
+      System.out.println("age=" + age()
+         + ", Barber has customer, waiting=" + waiting);
+      V(mutex);
+      System.out.println("age=" + age()
+         + ", Barber cutting hair");
+      P(cutting);
+   }           
+    public void wantHairCut(int i, int cutTime) {
+      int napping;
+      P(mutex);
+      if (waiting < numChairs) {
+         waiting++;
+         System.out.println("age=" + age()
+            + ", Customer " + i + " in room, waiting=" + waiting);
+         V(customers);
+         V(mutex);
+         P(barber);
+         napping = 1 + (int)random(cutTime);
+         System.out.println("age=" + age() + ", Customer "
+            + i + " getting haircut for " + napping + " ms");
+         nap(napping);
+         System.out.println("age=" + age()
+            + ", Customer " + i + " finished haircut");
+         V(cutting);
+      } else {
+         System.out.println("age=" + age() + ", Customer "  
+      + i + " room full, waiting=" + waiting);
+         V(mutex);
+      }
+   }
+}
+
+class SleepingBarber extends MyOb
