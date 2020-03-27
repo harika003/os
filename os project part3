@@ -1,0 +1,56 @@
+class SleepingBarber extends MyObject {
+
+   public static void main(String[] args) {
+
+      // parse command line options, if any, to override defaults
+      GetOpt go = new GetOpt(args, "Us:C:c:g:R:");
+      go.optErr = true;
+      String usage = "Usage: -s numChairs -C numCustomers"
+         + " -c cutTime -g growTime -R runTime";
+      int ch = -1;
+      int numChairs = 5;         
+      int numCustomers = 10;
+      int cutTime = 2;    // defaults
+      int growTime = 4;   // in
+      int runTime = 60;   // seconds
+      while ((ch = go.getopt()) != go.optEOF) {
+         if      ((char)ch == 'U') {
+            System.out.println(usage);  System.exit(0);
+         }
+         else if ((char)ch == 's') numChairs =
+            go.processArg(go.optArgGet(), numChairs);
+         else if ((char)ch == 'C') numCustomers =
+            go.processArg(go.optArgGet(), numCustomers);
+         else if ((char)ch == 'c') cutTime =
+            go.processArg(go.optArgGet(), cutTime);
+         else if ((char)ch == 'g') growTime =
+            go.processArg(go.optArgGet(), growTime);
+         else if ((char)ch == 'R')             
+            runTime = go.processArg(go.optArgGet(), runTime);
+         else {
+            System.err.println(usage);  System.exit(1);
+         }
+      }
+      System.out.println("SleepingBarber: numChairs=" + numChairs
+         + ", numCustomers=" + numCustomers + ", cutTime=" + cutTime
+         + ", growTime=" + growTime + ", runTime=" + runTime);
+
+      // create the Salon object
+      Salon salon = new Salon("Salon", numChairs);
+
+      new Barber("Barber", salon); // create the Barber
+
+      // create the Customers (self-starting thread)
+      for (int i = 0; i < numCustomers; i++)
+         new Customer("Customer", i, cutTime*1000, growTime*1000, salon);    
+      System.out.println("All Customer threads started");
+
+      // let the Customers run for a while
+      nap(runTime*1000);
+      System.out.println("age()=" + age()
+         + ", time to stop the Customers and exit");
+      System.exit(0);
+   }
+}
+
+
